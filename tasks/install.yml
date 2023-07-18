@@ -8,6 +8,7 @@
     group: "{{ n8n_gid }}"
   with_items:
     - "{{ n8n_base_path }}"
+    - "{{ n8n_data_path }}"
 
 - name: Ensure n8n support files installed
   ansible.builtin.template:
