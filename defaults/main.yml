@@ -21,7 +21,7 @@ n8n_hostname: ""
 n8n_path_prefix: /
 
 # Version of n8n to deploy
-n8n_version: 0.236.3
+n8n_version: latest
 
 # Base path for n8n resources
 n8n_base_path: "{{ n8n_identifier }}"
@@ -36,8 +36,8 @@ n8n_isolation_enabled: true
 # Timezone configuration for n8n
 n8n_timezone: UTC
 
-n8n_container_image: "{{ n8n_container_image_registry_prefix }}/n8nio/n8n:{{ n8n_container_image_tag }}"
-n8n_container_image_registry_prefix: docker.n8n.io
+n8n_container_image: "{{ n8n_container_image_registry_prefix }}/jarylc/n8n:{{ n8n_container_image_tag }}"
+n8n_container_image_registry_prefix: docker.io
 n8n_container_image_tag: "{{ n8n_version }}"
 n8n_container_image_force_pull: "{{ n8n_container_image.endswith(':latest') }}"
 
