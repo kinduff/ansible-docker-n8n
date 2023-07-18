@@ -21,7 +21,7 @@ n8n_hostname: ""
 n8n_path_prefix: /
 
 # Version of n8n to deploy
-n8n_version: latest
+n8n_version: next
 
 # Base path for n8n resources
 n8n_base_path: "{{ n8n_identifier }}"
