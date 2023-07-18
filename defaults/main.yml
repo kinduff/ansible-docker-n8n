@@ -36,8 +36,8 @@ n8n_isolation_enabled: true
 # Timezone configuration for n8n
 n8n_timezone: UTC
 
-n8n_container_image: "{{ n8n_container_image_registry_prefix }}/jarylc/n8n:{{ n8n_container_image_tag }}"
-n8n_container_image_registry_prefix: docker.io
+n8n_container_image: "{{ n8n_container_image_registry_prefix }}/n8nio/n8n:{{ n8n_container_image_tag }}"
+n8n_container_image_registry_prefix: docker.n8n.io
 n8n_container_image_tag: "{{ n8n_version }}"
 n8n_container_image_force_pull: "{{ n8n_container_image.endswith(':latest') }}"
 
@@ -183,12 +183,6 @@ n8n_environment_variable_timezone: "{{ n8n_timezone }}"
 
 # Controls the N8N_METRICS environment variable
 n8n_environment_variable_metrics_enabled: "{{ n8n_metrics_enabled }}"
-
-# Controls the UID environment variable
-n8n_environment_variable_uid: "{{ n8n_uid }}"
-
-# Controls the GID environment variable
-n8n_environment_variable_gid: "{{ n8n_gid }}"
 
 # Additional environment variables.
 n8n_environment_variables_additional_variables: ""
