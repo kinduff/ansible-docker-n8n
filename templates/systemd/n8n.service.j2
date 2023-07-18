@@ -22,6 +22,7 @@ ExecStartPre={{ devture_systemd_docker_base_host_command_docker }} create \
 			--network={{ n8n_container_network }} \
 			--env-file={{ n8n_base_path }}/env \
 			--label-file={{ n8n_base_path }}/labels \
+			--mount type=bind,src={{ n8n_data_path }},dst=/home/node/.n8n \
 			{% for arg in n8n_container_extra_arguments %}
 			{{ arg }} \
 			{% endfor %}

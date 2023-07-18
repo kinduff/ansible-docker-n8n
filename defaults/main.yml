@@ -24,7 +24,8 @@ n8n_path_prefix: /
 n8n_version: 0.236.3
 
 # Base path for n8n resources
-n8n_base_path: "/{{ n8n_identifier }}"
+n8n_base_path: "{{ n8n_identifier }}"
+n8n_data_path: "{{ n8n_base_path }}/data"
 
 # Enable or disable metrics collection for n8n
 n8n_metrics_enabled: false
