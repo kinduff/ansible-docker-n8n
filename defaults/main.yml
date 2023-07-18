@@ -181,7 +181,7 @@ n8n_environment_variable_webhook_url: "{{ n8n_environment_variable_base_url }}"
 n8n_environment_variable_timezone: "{{ n8n_timezone }}"
 
 # Controls the N8N_METRICS environment variable
-n8n_environment_variable_metrics: "{{ n8n_metrics_enabled }}"
+n8n_environment_variable_metrics_enabled: "{{ n8n_metrics_enabled }}"
 
 # Additional environment variables.
 n8n_environment_variables_additional_variables: ""
