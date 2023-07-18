@@ -1,0 +1,24 @@
+---
+- name: Check existence of n8n systemd service
+  ansible.builtin.stat:
+    path: "{{ devture_systemd_docker_base_systemd_path }}/{{ n8n_identifier }}.service"
+  register: n8n_service_stat
+
+- when: n8n_service_stat.stat.exists | bool
+  block:
+    - name: Ensure n8n systemd service is stopped
+      ansible.builtin.service:
+        name: "{{ n8n_identifier }}"
+        state: stopped
+        enabled: false
+        daemon_reload: true
+
+    - name: Ensure n8n systemd service does not exists
+      ansible.builtin.file:
+        path: "{{ devture_systemd_docker_base_systemd_path }}/{{ n8n_identifier }}.service"
+        state: absent
+
+    - name: Ensure n8n path doesn't exist
+      ansible.builtin.file:
+        path: "{{ n8n_base_path }}"
+        state: absent

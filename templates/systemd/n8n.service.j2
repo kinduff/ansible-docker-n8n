@@ -1,0 +1,44 @@
+#jinja2: lstrip_blocks: "True"
+[Unit]
+Description=n8n ({{ n8n_identifier }})
+{% for service in n8n_systemd_required_services_list %}
+Requires={{ service }}
+After={{ service }}
+{% endfor %}
+DefaultDependencies=no
+
+[Service]
+Type=simple
+Environment="HOME={{ devture_systemd_docker_base_systemd_unit_home_path }}"
+ExecStartPre=-{{ devture_systemd_docker_base_host_command_sh }} -c '{{ devture_systemd_docker_base_host_command_docker }} kill {{ n8n_identifier }} 2>/dev/null || true'
+ExecStartPre=-{{ devture_systemd_docker_base_host_command_sh }} -c '{{ devture_systemd_docker_base_host_command_docker }} rm {{ n8n_identifier }} 2>/dev/null || true'
+
+ExecStartPre={{ devture_systemd_docker_base_host_command_docker }} create \
+			--rm \
+			--name={{ n8n_identifier }} \
+			--log-driver=none \
+			--user={{ n8n_uid }}:{{ n8n_gid }} \
+			--cap-drop=ALL \
+			--network={{ n8n_container_network }} \
+			--env-file={{ n8n_base_path }}/env \
+			--label-file={{ n8n_base_path }}/labels \
+			{% for arg in n8n_container_extra_arguments %}
+			{{ arg }} \
+			{% endfor %}
+			{{ n8n_container_image }}
+
+{% for network in n8n_container_additional_networks %}
+ExecStartPre={{ devture_systemd_docker_base_host_command_docker }} network connect {{ network }} {{ n8n_identifier }}
+{% endfor %}
+
+ExecStart={{ devture_systemd_docker_base_host_command_docker }} start --attach {{ n8n_identifier }}
+
+ExecStop=-{{ devture_systemd_docker_base_host_command_sh }} -c '{{ devture_systemd_docker_base_host_command_docker }} kill {{ n8n_identifier }} 2>/dev/null || true'
+ExecStop=-{{ devture_systemd_docker_base_host_command_sh }} -c '{{ devture_systemd_docker_base_host_command_docker }} rm {{ n8n_identifier }} 2>/dev/null || true'
+
+Restart=always
+RestartSec=30
+SyslogIdentifier={{ n8n_identifier }}
+
+[Install]
+WantedBy=multi-user.target

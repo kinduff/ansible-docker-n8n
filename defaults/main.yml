@@ -1,0 +1,187 @@
+---
+# Project source code URL: https://github.com/n8n-io/n8n
+
+# Enable or disable n8n deployment
+n8n_enabled: true
+
+# Identifier string for n8n resources (e.g. container names, network names)
+n8n_identifier: n8n
+
+# User ID and Group ID for running n8n service in the container
+n8n_uid: ""
+n8n_gid: ""
+
+# The scheme used for serving n8n (http or https)
+n8n_scheme: https
+
+# The hostname at which n8n is served
+n8n_hostname: ""
+
+# The path at which n8n is served, must either be `/` or not end with a slash (e.g. `/n8n`)
+n8n_path_prefix: /
+
+# Version of n8n to deploy
+n8n_version: 0.236.3
+
+# Base path for n8n resources
+n8n_base_path: "/{{ n8n_identifier }}"
+
+# Enable or disable metrics collection for n8n
+n8n_metrics_enabled: false
+
+# Enable or disable isolation mode for n8n
+n8n_isolation_enabled: true
+
+# Timezone configuration for n8n
+n8n_timezone: UTC
+
+n8n_container_image: "{{ n8n_container_image_registry_prefix }}/n8nio/n8n:{{ n8n_container_image_tag }}"
+n8n_container_image_registry_prefix: docker.n8n.io
+n8n_container_image_tag: "{{ n8n_version }}"
+n8n_container_image_force_pull: "{{ n8n_container_image.endswith(':latest') }}"
+
+# The base container network. It will be auto-created by this role if it doesn't exist already.
+n8n_container_network: "{{ n8n_identifier }}"
+
+# A list of additional container networks that the container would be connected to.
+# The role does not create these networks, so make sure they already exist.
+# Use this to expose this container to another reverse proxy, which runs in a different container network.
+n8n_container_additional_networks: []
+
+# n8n_container_labels_traefik_enabled controls whether labels to assist a Traefik reverse-proxy will be attached to the container.
+# See `../templates/labels.j2` for details.
+#
+# To inject your own other container labels, see `n8n_container_labels_additional_labels`.
+n8n_container_labels_traefik_enabled: true
+n8n_container_labels_traefik_docker_network: "{{ n8n_container_network }}"
+n8n_container_labels_traefik_hostname: "{{ n8n_hostname }}"
+# The path prefix must either be `/` or not end with a slash (e.g. `/n8n`).
+n8n_container_labels_traefik_path_prefix: "{{ n8n_path_prefix }}"
+n8n_container_labels_traefik_rule: "Host(`{{ n8n_container_labels_traefik_hostname }}`){% if n8n_container_labels_traefik_path_prefix != '/' %} && PathPrefix(`{{ n8n_container_labels_traefik_path_prefix }}`){% endif %}"
+n8n_container_labels_traefik_priority: 0
+n8n_container_labels_traefik_entrypoints: web-secure
+n8n_container_labels_traefik_tls: "{{ n8n_container_labels_traefik_entrypoints != 'web' }}"
+n8n_container_labels_traefik_tls_certResolver: default # noqa var-naming
+
+# Controls which additional headers to attach to all HTTP responses.
+# To add your own headers, use `n8n_container_labels_traefik_additional_response_headers_custom`
+n8n_container_labels_traefik_additional_response_headers: "{{ n8n_container_labels_traefik_additional_response_headers_auto | combine(n8n_container_labels_traefik_additional_response_headers_custom) }}"
+n8n_container_labels_traefik_additional_response_headers_auto: |
+  {{
+    {}
+    | combine ({'X-XSS-Protection': n8n_http_header_xss_protection} if n8n_http_header_xss_protection else {})
+    | combine ({'X-Frame-Options': n8n_http_header_frame_options} if n8n_http_header_frame_options else {})
+    | combine ({'X-Content-Type-Options': n8n_http_header_content_type_options} if n8n_http_header_content_type_options else {})
+    | combine ({'Content-Security-Policy': n8n_http_header_content_security_policy} if n8n_http_header_content_security_policy else {})
+    | combine ({'Permission-Policy': n8n_http_header_content_permission_policy} if n8n_http_header_content_permission_policy else {})
+    | combine ({'Strict-Transport-Security': n8n_http_header_strict_transport_security} if n8n_http_header_strict_transport_security and n8n_container_labels_traefik_tls else {})
+  }}
+n8n_container_labels_traefik_additional_response_headers_custom: {}
+# n8n_container_labels_additional_labels contains a multiline string with additional labels to add to the container label file.
+# See `../templates/labels.j2` for details.
+#
+# Example:
+# n8n_container_labels_additional_labels: |
+#   my.label=1
+#   another.label="here"
+n8n_container_labels_additional_labels: ""
+
+# A list of extra arguments to pass to the container
+n8n_container_extra_arguments: []
+
+# List of systemd services that n8n.service depends on
+n8n_systemd_required_services_list: ["docker.service"]
+
+# Specifies the value of the `X-XSS-Protection` header
+# Stops pages from loading when they detect reflected cross-site scripting (XSS) attacks.
+#
+# Learn more about it is here:
+# - https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/X-XSS-Protection
+# - https://portswigger.net/web-security/cross-site-scripting/reflected
+n8n_http_header_xss_protection: "1; mode=block"
+
+# Specifies the value of the `X-Frame-Options` header which controls whether framing can happen.
+# See: https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/X-Frame-Options
+n8n_http_header_frame_options: SAMEORIGIN
+
+# Specifies the value of the `X-Content-Type-Options` header.
+# See: https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/X-Content-Type-Options
+n8n_http_header_content_type_options: nosniff
+
+# Specifies the value of the `Content-Security-Policy` header.
+# See: https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Content-Security-Policy
+n8n_http_header_content_security_policy: frame-ancestors 'self'
+
+# Specifies the value of the `Permission-Policy` header.
+# See: https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Permission-Policy
+n8n_http_header_content_permission_policy: "{{ 'interest-cohort=()' if n8n_floc_optout_enabled else '' }}"
+
+# Specifies the value of the `Strict-Transport-Security` header.
+# See: https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Strict-Transport-Security
+n8n_http_header_strict_transport_security: "max-age=31536000; includeSubDomains{{ '; preload' if n8n_hsts_preload_enabled else '' }}"
+
+# Controls whether to send a "Permissions-Policy interest-cohort=();" header along with all responses
+#
+# Learn more about what it is here:
+# - https://www.eff.org/deeplinks/2021/03/googles-floc-terrible-idea
+# - https://paramdeo.com/blog/opting-your-website-out-of-googles-floc-network
+# - https://amifloced.org/
+#
+# Of course, a better solution is to just stop using browsers (like Chrome), which participate in such tracking practices.
+# See: `n8n_content_permission_policy`
+n8n_floc_optout_enabled: true
+
+# Controls if HSTS preloading is enabled
+#
+# In its strongest and recommended form, the [HSTS policy](https://www.chromium.org/hsts) includes all subdomains, and
+# indicates a willingness to be "preloaded" into browsers:
+# `Strict-Transport-Security: max-age=31536000; includeSubDomains; preload`
+# For more information visit:
+# - https://en.wikipedia.org/wiki/HTTP_Strict_Transport_Security
+# - https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Strict-Transport-Security
+# - https://hstspreload.org/#opt-in
+# See: `n8n_http_header_strict_transport_security`
+n8n_hsts_preload_enabled: false
+
+# PostgreSQL database configuration
+n8n_database_username: n8n
+n8n_database_password: ""
+n8n_database_hostname: ""
+n8n_database_port: 5432
+n8n_database_name: n8n
+
+# Controls the DB_POSTGRESDB_USER environment variable
+n8n_environment_variable_database_username: "{{ n8n_database_username }}"
+
+# Controls the DB_POSTGRESDB_PASSWORD environment variable
+n8n_environment_variable_database_password: "{{ n8n_database_password }}"
+
+# Controls the DB_POSTGRESDB_HOST environment variable
+n8n_environment_variable_database_hostname: "{{ n8n_database_hostname }}"
+
+# Controls the DB_POSTGRESDB_PORT environment variable
+n8n_environment_variable_database_port: "{{ n8n_database_port }}"
+
+# Controls the DB_POSTGRESDB_DATABASE environment variable
+n8n_environment_variable_database_name: "{{ n8n_database_name }}"
+
+# Controls the N8N_HOST environment variable
+n8n_environment_variable_n8n_host: "{{ n8n_hostname }}"
+
+# Controls the N8N_PATH environment variable
+n8n_environment_variable_n8n_path: "{{ n8n_path_prefix }}"
+
+# Controls the BASE_URL environment variable
+n8n_environment_variable_base_url: "{{ n8n_scheme }}://{{ n8n_hostname }}{{ n8n_path_prefix }}"
+
+# Controls the WEBHOOK_URL environment variable
+n8n_environment_variable_webhook_url: "{{ n8n_environment_variable_base_url }}"
+
+# Controls the GENERIC_TIMEZONE environment variable
+n8n_environment_variable_timezone: "{{ n8n_timezone }}"
+
+# Controls the N8N_METRICS environment variable
+n8n_environment_variable_metrics: "{{ n8n_metrics_enabled }}"
+
+# Additional environment variables.
+n8n_environment_variables_additional_variables: ""

@@ -1,0 +1,35 @@
+---
+- name: Fail if required n8n settings not defined
+  ansible.builtin.fail:
+    msg: >
+      You need to define a required configuration setting (`{{ item }}`).
+  when: "vars[item] == ''"
+  with_items:
+    - n8n_identifier
+    - n8n_uid
+    - n8n_gid
+    - n8n_hostname
+    - n8n_path_prefix
+    - n8n_container_network
+    - n8n_database_hostname
+    - n8n_database_password
+
+- when: n8n_container_labels_traefik_enabled | bool
+  block:
+    - name: Fail if required n8n Traefik settings not defined
+      ansible.builtin.fail:
+        msg: >-
+          You need to define a required configuration setting (`{{ item }}`).
+      when: "vars[item] == ''"
+      with_items:
+        - n8n_container_labels_traefik_hostname
+        - n8n_container_labels_traefik_path_prefix
+
+    # We ensure it doesn't end with a slash, because we handle both (slash and no-slash).
+    # Knowing that `n8n_container_labels_traefik_path_prefix` does not end with a slash
+    # ensures we know how to set these routes up without having to do "does it end with a slash" checks elsewhere.
+    - name: Fail if n8n_container_labels_traefik_path_prefix ends with a slash
+      ansible.builtin.fail:
+        msg: >-
+          n8n_container_labels_traefik_path_prefix (`{{ n8n_container_labels_traefik_path_prefix }}`) must either be `/` or not end with a slash (e.g. `/n8n`).
+      when: "n8n_container_labels_traefik_path_prefix != '/' and n8n_container_labels_traefik_path_prefix[-1] == '/'"
