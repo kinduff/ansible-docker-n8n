@@ -184,5 +184,11 @@ n8n_environment_variable_timezone: "{{ n8n_timezone }}"
 # Controls the N8N_METRICS environment variable
 n8n_environment_variable_metrics_enabled: "{{ n8n_metrics_enabled }}"
 
+# Controls the UID environment variable
+n8n_environment_variable_uid: "{{ n8n_uid }}"
+
+# Controls the GID environment variable
+n8n_environment_variable_gid: "{{ n8n_gid }}"
+
 # Additional environment variables.
 n8n_environment_variables_additional_variables: ""
