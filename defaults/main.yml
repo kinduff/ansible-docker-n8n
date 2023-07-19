@@ -8,8 +8,12 @@ n8n_enabled: true
 n8n_identifier: n8n
 
 # User ID and Group ID for running n8n service in the container
-n8n_uid: ""
-n8n_gid: ""
+#
+# Important note: The n8n Docker image uses UID and GID 1000 for the user node internally.
+# This cannot be remapped as it executes chown and setgroups commands.
+# If you have knowledge on how this value can be remapped, please let me know or send a PR.
+n8n_uid: "1000"
+n8n_gid: "1000"
 
 # The scheme used for serving n8n (http or https)
 n8n_scheme: https
