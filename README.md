@@ -8,3 +8,7 @@ This role _implicitly_ depends on:
 - [`com.devture.ansible.role.systemd_docker_base`](https://github.com/devture/com.devture.ansible.role.systemd_docker_base)
 
 Check [defaults/main.yml](defaults/main.yml) for the full list of supported options.
+
+---
+
+Thanks for the work of [etke.cc](https://gitlab.com/etke.cc/) for the template for this role.
